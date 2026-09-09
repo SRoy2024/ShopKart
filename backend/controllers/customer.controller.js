@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const Customer = require("../models/customer.model");
+const generateToken = require("../utils/generateToken");
 
 const registerCustomer = async (req, res) => {
   try {
@@ -70,4 +71,67 @@ const registerCustomer = async (req, res) => {
 
 module.exports = {
   registerCustomer
+};
+
+const loginCustomer = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const customer = await Customer.findOne({
+      email: normalizedEmail
+    }).select("+password");
+
+    if (!customer) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      customer.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const token = generateToken(customer._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful"
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+module.exports = {
+  loginCustomer
 };
