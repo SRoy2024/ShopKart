@@ -19,7 +19,11 @@ const registerCustomer = async (req, res) => {
       });
     }
 
-    const existingCustomer = await Customer.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingCustomer = await Customer.findOne({
+      email: normalizedEmail
+    });
 
     if (existingCustomer) {
       return res.status(409).json({
@@ -31,10 +35,10 @@ const registerCustomer = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const customer = await Customer.create({
-      fullName,
-      email,
+      fullName: fullName.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
-      phone
+      phone: phone.trim()
     });
 
     return res.status(201).json({
@@ -47,9 +51,15 @@ const registerCustomer = async (req, res) => {
         phone: customer.phone
       }
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Register error:", error);
+
+    if (error.code === 11000) {
+      return res.status(409).json({
+        success: false,
+        message: "Email already exists"
+      });
+    }
 
     return res.status(500).json({
       success: false,
