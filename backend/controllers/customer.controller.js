@@ -69,10 +69,6 @@ const registerCustomer = async (req, res) => {
   }
 };
 
-module.exports = {
-  registerCustomer
-};
-
 const loginCustomer = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -133,5 +129,6 @@ const loginCustomer = async (req, res) => {
   }
 };
 module.exports = {
+  registerCustomer,
   loginCustomer
 };
