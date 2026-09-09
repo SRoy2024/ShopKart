@@ -73,7 +73,12 @@ const loginCustomer = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (
+      typeof email !== "string" ||
+      typeof password !== "string" ||
+      !email.trim() ||
+      !password
+    ) {
       return res.status(401).json({
         success: false,
         message: "Invalid credentials"
@@ -128,6 +133,7 @@ const loginCustomer = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   registerCustomer,
   loginCustomer
