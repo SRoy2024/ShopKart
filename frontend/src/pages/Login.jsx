@@ -4,54 +4,31 @@ import api from "../services/api";
 
 function Login() {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((previousData) => ({
-      ...previousData,
-      [name]: value,
-    }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError("");
-
-    if (
-      !formData.email.trim() ||
-      !formData.password
-    ) {
+    if (!formData.email.trim() || !formData.password) {
       setError("Email and password are required");
       return;
     }
-
     try {
       setLoading(true);
-
-      await api.post(
-        "/customers/login",
-        formData
-      );
-
+      await api.post("/customers/login", formData);
       navigate("/home");
-    } catch (error) {
-      if (error.response?.status === 401) {
-        setError("Invalid Credentials");
+    } catch (err) {
+      if (err.response?.status === 401) {
+        setError("Invalid credentials. Please try again.");
       } else {
-        setError(
-          error.response?.data?.message ||
-            "Login failed"
-        );
+        setError(err.response?.data?.message || "Login failed.");
       }
     } finally {
       setLoading(false);
@@ -59,78 +36,63 @@ function Login() {
   };
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <div className="auth-header">
-          <span className="brand">
-            ShopKart
-          </span>
+    <main className="auth-minimal-page">
+      {/* Logo */}
+      <div className="auth-minimal-logo">
+        <span className="aml-shop">Shop</span><span className="aml-kart">Kart</span>
+      </div>
 
-          <h1>Welcome back</h1>
+      {/* Card */}
+      <div className="auth-minimal-card">
+        <h1 className="auth-minimal-heading">Welcome back</h1>
+        <p className="auth-minimal-sub">Sign in to your account</p>
 
-          <p>
-            Login to continue shopping.
-          </p>
-        </div>
-
-        <form
-          className="auth-form"
-          onSubmit={handleSubmit}
-        >
-          <div className="form-group">
-            <label htmlFor="email">
-              Email
-            </label>
-
+        <form className="auth-minimal-form" onSubmit={handleSubmit} noValidate>
+          <div className="amf-group">
+            <label htmlFor="email">Email</label>
             <input
               id="email"
               name="email"
               type="email"
-              placeholder="john@gmail.com"
+              placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">
-              Password
-            </label>
-
+          <div className="amf-group">
+            <label htmlFor="password">Password</label>
             <input
               id="password"
               name="password"
               type="password"
-              placeholder="Enter your password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="current-password"
             />
           </div>
 
           {error && (
-            <p className="error-message">
-              {error}
-            </p>
+            <p className="amf-error" role="alert">{error}</p>
           )}
 
           <button
-            className="primary-button"
+            className="amf-submit"
             type="submit"
             disabled={loading}
+            id="login-submit-btn"
           >
-            {loading
-              ? "Logging in..."
-              : "Login"}
+            {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
-        <p className="auth-switch">
-          Don't have an account?{" "}
-          <Link to="/register">
-            Create one
-          </Link>
+        <p className="auth-minimal-switch">
+          No account?{" "}
+          <Link to="/register">Create one</Link>
         </p>
-      </section>
+      </div>
     </main>
   );
 }
