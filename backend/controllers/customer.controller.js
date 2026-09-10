@@ -176,9 +176,80 @@ const logoutCustomer = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (
+      typeof oldPassword !== "string" ||
+      typeof newPassword !== "string" ||
+      !oldPassword ||
+      !newPassword
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Old password and new password are required"
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must contain at least 6 characters"
+      });
+    }
+
+    const customer = await Customer.findById(
+      req.user._id
+    ).select("+password");
+
+    if (!customer) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const isOldPasswordValid = await bcrypt.compare(
+      oldPassword,
+      customer.password
+    );
+
+    if (!isOldPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Old password is incorrect"
+      });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(
+      newPassword,
+      10
+    );
+
+    customer.password = hashedNewPassword;
+
+    await customer.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully"
+    });
+
+  } catch (error) {
+    console.error("Change password error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
 module.exports = {
   registerCustomer,
   loginCustomer,
   getProfile,
-  logoutCustomer
+  logoutCustomer,
+  changePassword
 };
