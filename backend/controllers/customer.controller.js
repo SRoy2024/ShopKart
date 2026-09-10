@@ -134,7 +134,27 @@ const loginCustomer = async (req, res) => {
   }
 };
 
+const getProfile = async (req, res) => {
+  try {
+    return res.status(200).json({
+      _id: req.user._id,
+      fullName: req.user.fullName,
+      email: req.user.email,
+      phone: req.user.phone
+    });
+
+  } catch (error) {
+    console.error("Profile error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
 module.exports = {
   registerCustomer,
-  loginCustomer
+  loginCustomer,
+  getProfile
 };
