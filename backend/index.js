@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 
 const customerRoutes = require("./routes/customer.routes");
+const productRoutes = require("./routes/product.routes");
+const wishlistRoutes = require("./routes/wishlist.routes");
 
 const app = express();
 
@@ -38,6 +40,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/customers", customerRoutes);
+app.use("/products", productRoutes);
+app.use("/wishlist", wishlistRoutes);
 
 const PORT = process.env.PORT || 1000;
 

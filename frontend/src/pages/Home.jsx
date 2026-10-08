@@ -1,153 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
-
-/* ============================================================
-   FAKE PRODUCTS DATA — purely for display, no backend calls
-   ============================================================ */
-const FAKE_PRODUCTS = [
-  {
-    id: 1,
-    name: "Sony WH-1000XM5 Noise Cancelling Headphones",
-    category: "Electronics",
-    price: 22999,
-    originalPrice: 34990,
-    discount: 34,
-    rating: 4.9,
-    reviews: 8241,
-    badge: "bestseller",
-    badgeLabel: "Best Seller",
-    delivery: "10-min delivery",
-    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 2,
-    name: "Apple Watch Series 9 — Midnight",
-    category: "Wearables",
-    price: 38999,
-    originalPrice: 45900,
-    discount: 15,
-    rating: 4.8,
-    reviews: 5632,
-    badge: "new",
-    badgeLabel: "New",
-    delivery: "Express — 20 mins",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 3,
-    name: "Nike Air Max 270 React — Fire Edition",
-    category: "Footwear",
-    price: 8995,
-    originalPrice: 13995,
-    discount: 36,
-    rating: 4.7,
-    reviews: 3829,
-    badge: "sale",
-    badgeLabel: "36% Off",
-    delivery: "10-min delivery",
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 4,
-    name: "Dyson V15 Detect Absolute Vacuum",
-    category: "Home",
-    price: 49999,
-    originalPrice: 62900,
-    discount: 20,
-    rating: 4.9,
-    reviews: 2107,
-    badge: "hot",
-    badgeLabel: "🔥 Hot",
-    delivery: "Express — 30 mins",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 5,
-    name: "Polaroid Now+ Instant Camera — Black",
-    category: "Photography",
-    price: 11999,
-    originalPrice: 15500,
-    discount: 23,
-    rating: 4.6,
-    reviews: 1420,
-    badge: "sale",
-    badgeLabel: "23% Off",
-    delivery: "10-min delivery",
-    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 6,
-    name: "Chanel Bleu de Chanel EDP 100ml",
-    category: "Beauty",
-    price: 9499,
-    originalPrice: 12800,
-    discount: 26,
-    rating: 4.8,
-    reviews: 4591,
-    badge: "bestseller",
-    badgeLabel: "Best Seller",
-    delivery: "Express — 20 mins",
-    image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 7,
-    name: "MacBook Air M3 — Space Grey 16GB",
-    category: "Laptops",
-    price: 109999,
-    originalPrice: 124900,
-    discount: 12,
-    rating: 4.9,
-    reviews: 11230,
-    badge: "hot",
-    badgeLabel: "🔥 Hot",
-    delivery: "Same-day delivery",
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&h=500&fit=crop&q=80",
-  },
-  {
-    id: 8,
-    name: "Ray-Ban Clubmaster Sunglasses — Gold",
-    category: "Accessories",
-    price: 7499,
-    originalPrice: 10990,
-    discount: 32,
-    rating: 4.7,
-    reviews: 2384,
-    badge: "sale",
-    badgeLabel: "32% Off",
-    delivery: "10-min delivery",
-    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&h=500&fit=crop&q=80",
-  },
-];
-
-const FLASH_PRODUCTS = [
-  {
-    id: 101,
-    name: "JBL Charge 5",
-    price: 7999,
-    off: "40% Off",
-    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=300&fit=crop&q=80",
-  },
-  {
-    id: 102,
-    name: "iPad Pro 11″",
-    price: 72999,
-    off: "15% Off",
-    image: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=300&h=300&fit=crop&q=80",
-  },
-  {
-    id: 103,
-    name: "Adidas Ultraboost",
-    price: 9499,
-    off: "30% Off",
-    image: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=300&h=300&fit=crop&q=80",
-  },
-];
+import ProductCard from "../components/ProductCard";
 
 const CATEGORIES = [
   { emoji: "🛍️", label: "All" },
   { emoji: "📱", label: "Electronics" },
+  { emoji: "👕", label: "Fashion" },
+  { emoji: "📚", label: "Books" },
   { emoji: "👟", label: "Footwear" },
   { emoji: "🏠", label: "Home" },
   { emoji: "💄", label: "Beauty" },
@@ -162,27 +23,6 @@ function formatPrice(n) {
   return "₹" + n.toLocaleString("en-IN");
 }
 
-function renderStars(rating) {
-  return Array.from({ length: 5 }, (_, i) => (
-    <span key={i} className="star" aria-hidden="true">
-      {i < Math.floor(rating) ? "★" : i < rating ? "⭐" : "☆"}
-    </span>
-  ));
-}
-
-/* ---- Countdown Timer ---- */
-function useCountdown(targetSecs) {
-  const [secs, setSecs] = useState(targetSecs);
-  useEffect(() => {
-    const id = setInterval(() => setSecs((s) => (s > 0 ? s - 1 : 0)), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const h = String(Math.floor(secs / 3600)).padStart(2, "0");
-  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
-  const s = String(secs % 60).padStart(2, "0");
-  return { h, m, s };
-}
-
 /* ============================================================
    HOME COMPONENT
    ============================================================ */
@@ -193,8 +33,9 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-
-  const { h, m, s } = useCountdown(4 * 3600 + 22 * 60 + 38);
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState("");
 
   useEffect(() => {
     const fetchCustomer = async () => {
@@ -214,11 +55,25 @@ function Home() {
     fetchCustomer();
   }, [navigate]);
 
-  /* -- filtered products -- */
-  const filteredProducts =
-    activeCategory === "All"
-      ? FAKE_PRODUCTS
-      : FAKE_PRODUCTS.filter((p) => p.category === activeCategory);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setProductsLoading(true);
+        setProductsError("");
+
+        const params = activeCategory === "All" ? {} : { category: activeCategory };
+        const response = await api.get("/products", { params });
+        setProducts(response.data.products);
+      } catch (err) {
+        console.error("Home products fetch error:", err);
+        setProductsError("Something went wrong while loading products.");
+      } finally {
+        setProductsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [activeCategory]);
 
   /* ---- Loading ---- */
   if (loading) {
@@ -264,7 +119,7 @@ function Home() {
               From electronics to fashion — ShopKart moves at the speed of life.
             </p>
             <div className="hero-ctas">
-              <span className="btn-primary">🛒 Browse Products</span>
+              <Link className="btn-primary" to="/products"> 🛒 Browse Products </Link>
               <span className="btn-secondary">🎁 Today's Deals</span>
             </div>
             <div className="hero-stats">
@@ -291,8 +146,8 @@ function Home() {
                 <h3>Trending near you</h3>
               </div>
               <div className="phone-product-mini">
-                {FAKE_PRODUCTS.slice(0, 3).map((p) => (
-                  <div key={p.id} className="phone-product-item">
+                {products.slice(0, 3).map((p) => (
+                  <div key={p._id} className="phone-product-item">
                     <img
                       className="phone-product-thumb"
                       src={p.image}
@@ -387,132 +242,63 @@ function Home() {
                 {activeCategory === "All" ? "Top Picks For You" : activeCategory}
               </h2>
             </div>
-            <span className="see-all-link">View all →</span>
+            <Link className="see-all-link" to="/products">View all →</Link>
           </div>
 
-          {filteredProducts.length === 0 ? (
+          {productsLoading ? (
+            <div className="catalog-state home-products-state">
+              <div className="loading-spinner" aria-label="Loading" />
+              <p>Loading products...</p>
+            </div>
+          ) : productsError ? (
+            <div className="catalog-state home-products-state">
+              <p className="catalog-error">{productsError}</p>
+            </div>
+          ) : products.length === 0 ? (
             <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>
               No products found in this category yet.
             </p>
           ) : (
-            <div className="products-grid">
-              {filteredProducts.map((product) => (
-                <article
-                  key={product.id}
-                  className="product-card"
-                  id={`product-${product.id}`}
-                  aria-label={product.name}
-                >
-                  <div className="product-image-wrap">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                    />
-                    <span className={`product-badge ${product.badge}`}>
-                      {product.badgeLabel}
-                    </span>
-                    <button className="product-wishlist" aria-label="Add to wishlist">
-                      🤍
-                    </button>
-                    <div className="product-delivery-tag">
-                      ⚡ {product.delivery}
-                    </div>
-                  </div>
-
-                  <div className="product-info">
-                    <p className="product-category">{product.category}</p>
-                    <h3 className="product-name">{product.name}</h3>
-
-                    <div className="product-rating">
-                      <div className="product-stars">{renderStars(product.rating)}</div>
-                      <span className="product-rating-count">
-                        {product.rating} ({product.reviews.toLocaleString()})
-                      </span>
-                    </div>
-
-                    <div className="product-pricing">
-                      <div className="price-group">
-                        <span className="price-current">
-                          {formatPrice(product.price)}
-                        </span>
-                        <span className="price-original">
-                          {formatPrice(product.originalPrice)}
-                        </span>
-                        <span className="price-discount">
-                          -{product.discount}%
-                        </span>
-                      </div>
-                      <button
-                        className="add-to-cart-btn"
-                        aria-label={`Add ${product.name} to cart`}
-                        id={`add-cart-${product.id}`}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                          <line x1="3" y1="6" x2="21" y2="6"/>
-                          <path d="M16 10a4 4 0 0 1-8 0"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </article>
+            <div className="catalog-products-grid home-products-grid">
+              {products.slice(0, 8).map((product) => (
+                <ProductCard key={product._id} product={product} />
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* ============ FLASH SALE BANNER ============ */}
+      {/* ============ CATALOG HIGHLIGHT ============ */}
       <section className="flash-sale-section">
         <div className="section-container">
           <div className="flash-sale-banner">
             <div className="flash-sale-text">
               <div className="flash-sale-eyebrow">
-                <span className="flash-badge">⚡ Flash Sale</span>
+                <span className="flash-badge">ShopKart Catalogue</span>
               </div>
               <h2 className="flash-sale-title">
-                Up to <span className="highlight">70% Off</span><br />
-                Today Only!
+                Find your next <span className="highlight">favourite</span><br />
+                in the catalogue.
               </h2>
               <p className="flash-sale-sub">
-                Hop fast — these deals vanish when the timer hits zero.
+                Browse real products currently available in ShopKart.
               </p>
-
-              {/* Countdown */}
-              <div className="countdown-wrap">
-                <span className="countdown-label">Ends in:</span>
-                {[
-                  { num: h, sub: "HRS" },
-                  { num: m, sub: "MIN" },
-                  { num: s, sub: "SEC" },
-                ].map((unit, i) => (
-                  <span key={i} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span className="countdown-unit">
-                      <span className="countdown-num">{unit.num}</span>
-                      <span className="countdown-sub">{unit.sub}</span>
-                    </span>
-                    {i < 2 && <span className="countdown-sep">:</span>}
-                  </span>
-                ))}
-              </div>
-
-              <span className="btn-primary" style={{ display: "inline-flex", width: "fit-content" }}>
-                🛒 Shop the Sale
-              </span>
+              <Link className="btn-primary" to="/products" style={{ display: "inline-flex", width: "fit-content" }}>
+                🛒 Browse all products
+              </Link>
             </div>
 
             {/* Flash products */}
             <div className="flash-sale-products">
-              {FLASH_PRODUCTS.map((fp) => (
-                <div key={fp.id} className="flash-product-card">
+              {products.slice(0, 3).map((fp) => (
+                <Link key={fp._id} to={`/products/${fp._id}`} className="flash-product-card">
                   <img src={fp.image} alt={fp.name} loading="lazy" />
                   <div className="flash-product-card-info">
                     <p>{fp.name}</p>
                     <span className="fp-price">{formatPrice(fp.price)}</span>
-                    <span className="fp-off"> · {fp.off}</span>
+                    <span className="fp-off"> · {fp.stock > 0 ? `${fp.stock} in stock` : "Out of stock"}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
