@@ -1,11 +1,32 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../services/api";
 
-function Navbar() {
+function Navbar({ wishlistCount }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [backendWishlistCount, setBackendWishlistCount] = useState(0);
+
+  
+    useEffect(() => {
+      const fetchWishlistCount = async () => {
+        try {
+          const response = await api.get("/wishlist");
+          setBackendWishlistCount(response.data.count);
+        } catch (err) {
+          console.error("Wishlist count fetch error:", err);
+        }
+      };
+
+      fetchWishlistCount();
+    }, []);
+
+  const displayedWishlistCount =
+    typeof wishlistCount === "number"
+      ? wishlistCount
+      : backendWishlistCount;
+
 
   const handleLogout = async () => {
     try {
@@ -48,8 +69,10 @@ function Navbar() {
         </Link>
         {/* Speed delivery badge */}
         <Link className="navbar-link" to="/wishlist">
-          Wishlist
+          Wishlist ({displayedWishlistCount})
         </Link>
+
+
         <div className="navbar-badge" title="Fast delivery guarantee">
           <svg viewBox="0 0 12 12" fill="none">
             <path d="M6 1l1.5 3h3L8 6l1 3.5L6 8 3 9.5l1-3.5L1.5 4h3z" fill="currentColor"/>

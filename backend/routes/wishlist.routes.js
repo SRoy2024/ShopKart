@@ -4,7 +4,8 @@ const authMiddleware = require("../middlewares/auth.middleware");
 const {
   addToWishlist,
   getWishlist,
-  removeFromWishlist
+  removeFromWishlist,
+  toggleWishlist
 } = require("../controllers/wishlist.controller");
 
 const router = express.Router();
@@ -27,4 +28,10 @@ router.delete(
   removeFromWishlist
 );
 
+
+router.patch(
+  "/:productId/toggle",
+  authMiddleware,
+  toggleWishlist
+);
 module.exports = router;

@@ -137,8 +137,73 @@ const removeFromWishlist = async (req, res) => {
   }
 };
 
+const toggleWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid product ID"
+      });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    const customer = await Customer.findById(req.user._id);
+
+    if (!customer) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const wishlistIndex = customer.wishlist.findIndex(
+      (id) => id.toString() === productId
+    );
+
+    let isWishlisted;
+
+    if (wishlistIndex !== -1) {
+      customer.wishlist.splice(wishlistIndex, 1);
+      isWishlisted = false;
+    } else {
+      customer.wishlist.push(product._id);
+      isWishlisted = true;
+    }
+
+    await customer.save();
+
+    return res.status(200).json({
+      success: true,
+      isWishlisted,
+      count: customer.wishlist.length,
+      message: isWishlisted
+        ? "Product added to wishlist"
+        : "Product removed from wishlist"
+    });
+  } catch (error) {
+    console.error("Toggle wishlist error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
+  }
+};
+
+
 module.exports = {
   addToWishlist,
   getWishlist,
-  removeFromWishlist
+  removeFromWishlist,
+  toggleWishlist
 };

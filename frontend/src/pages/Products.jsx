@@ -12,6 +12,8 @@ function Products() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [wishlistIds, setWishlistIds] = useState([]);
+  const [wishlistLoaded, setWishlistLoaded] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -62,10 +64,33 @@ function Products() {
     fetchProducts();
 
   }, [search, category, sort]);
+  useEffect(() => {
+  const fetchWishlistIds = async () => {
+    try {
+      const response = await api.get("/wishlist");
+
+      const ids = response.data.wishlist.map(
+        (product) => product._id
+      );
+
+      setWishlistIds(ids);
+      setWishlistLoaded(true);
+    } catch (err) {
+      console.error("Wishlist IDs fetch error:", err);
+    }
+  };
+
+  fetchWishlistIds();
+}, []);
 
   return (
     <>
-      <Navbar />
+    <Navbar
+      wishlistCount={
+        wishlistLoaded ? wishlistIds.length : undefined
+      }
+    />
+
 
       <main className="catalog-page">
         <section className="catalog-header">
@@ -242,6 +267,20 @@ function Products() {
                   <ProductCard
                     key={product._id}
                     product={product}
+                    isWishlisted={wishlistIds.includes(product._id)}
+                    onWishlistChange={(productId, saved) => {
+                      setWishlistIds((currentIds) => {
+                        if (saved) {
+                          return currentIds.includes(productId)
+                            ? currentIds
+                            : [...currentIds, productId];
+                        }
+
+                        return currentIds.filter(
+                          (id) => id !== productId
+                        );
+                      });
+                    }}
                   />
                 ))}
               </div>
