@@ -1,13 +1,43 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
+
+  const [wishlistState, setWishlistState] = useState("default");
+  const [wishlistError, setWishlistError] = useState("");
 
   const formatPrice = (price) => {
     return "₹" + price.toLocaleString("en-IN");
   };
 
   const isInStock = product.stock > 0;
+
+  const handleAddToWishlist = async () => {
+    // Prevent duplicate requests while one is already running
+    if (wishlistState === "saving") {
+      return;
+    }
+
+    try {
+      setWishlistState("saving");
+      setWishlistError("");
+
+      await api.post(`/wishlist/${product._id}`);
+
+      setWishlistState("added");
+    } catch (err) {
+      console.error("Add to wishlist error:", err);
+
+      setWishlistState("default");
+
+      setWishlistError(
+        err.response?.data?.message ||
+          "Could not add product to wishlist."
+      );
+    }
+  };
 
   return (
     <article
@@ -68,6 +98,28 @@ function ProductCard({ product }) {
         >
           View Details
         </button>
+
+        <button
+          className="wishlist-btn"
+          type="button"
+          onClick={handleAddToWishlist}
+          disabled={
+            wishlistState === "saving" ||
+            wishlistState === "added"
+          }
+        >
+          {wishlistState === "default" && "♡ Add to Wishlist"}
+
+          {wishlistState === "saving" && "⏳ Saving..."}
+
+          {wishlistState === "added" && "♥ Added to Wishlist"}
+        </button>
+
+        {wishlistError && (
+          <p className="wishlist-error">
+            {wishlistError}
+          </p>
+        )}
       </div>
     </article>
   );

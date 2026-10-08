@@ -43,7 +43,13 @@ function Navbar() {
 
       {/* Nav Actions */}
       <div className="navbar-actions">
+        <Link className="navbar-link" to="/products">
+          Products
+        </Link>
         {/* Speed delivery badge */}
+        <Link className="navbar-link" to="/wishlist">
+          Wishlist
+        </Link>
         <div className="navbar-badge" title="Fast delivery guarantee">
           <svg viewBox="0 0 12 12" fill="none">
             <path d="M6 1l1.5 3h3L8 6l1 3.5L6 8 3 9.5l1-3.5L1.5 4h3z" fill="currentColor"/>
