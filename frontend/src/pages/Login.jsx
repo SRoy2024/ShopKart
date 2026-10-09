@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useCart } from "../hooks/useCart";
 
 function Login() {
   const navigate = useNavigate();
+  const { refreshCart } = useCart();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,6 +25,7 @@ function Login() {
     try {
       setLoading(true);
       await api.post("/customers/login", formData);
+      await refreshCart();
       navigate("/home");
     } catch (err) {
       if (err.response?.status === 401) {

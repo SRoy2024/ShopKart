@@ -1,14 +1,19 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useCart } from "../hooks/useCart";
 import api from "../services/api";
 
 function Navbar({ wishlistCount }) {
   const navigate = useNavigate();
+  const { cart, refreshCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [backendWishlistCount, setBackendWishlistCount] = useState(0);
-
-  
+  useEffect(() => {
+      refreshCart().catch(() => {
+        // CartContext already stores the error.
+      });
+    }, [refreshCart]);
     useEffect(() => {
       const fetchWishlistCount = async () => {
         try {
@@ -40,7 +45,10 @@ function Navbar({ wishlistCount }) {
       setLoading(false);
     }
   };
-
+  const cartCount = cart.reduce(
+  (total, item) => total + item.quantity,
+  0
+);
   return (
     <nav className="navbar">
       {/* Brand Logo */}
@@ -71,7 +79,9 @@ function Navbar({ wishlistCount }) {
         <Link className="navbar-link" to="/wishlist">
           Wishlist ({displayedWishlistCount})
         </Link>
-
+        <Link className="navbar-link" to="/cart">
+          Cart ({cartCount})
+        </Link>
 
         <div className="navbar-badge" title="Fast delivery guarantee">
           <svg viewBox="0 0 12 12" fill="none">

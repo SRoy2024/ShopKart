@@ -41,9 +41,32 @@ const customerSchema = new mongoose.Schema({
       }
     ],
     default: []
+  },
+  
+  cart: {
+    type: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true
+        },
+
+        quantity: {
+          type: Number,
+          required: true,
+          default: 1,
+          min: 1,
+          validate: {
+            validator: Number.isInteger,
+            message: "Quantity must be a whole number"
+          }
+        }
+      }
+    ],
+    default: []
   }
 });
-
 const Customer = mongoose.model("Customer", customerSchema);
 
 module.exports = Customer;

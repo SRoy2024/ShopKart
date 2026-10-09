@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../hooks/useCart";
+import { addToCart } from "../services/cart.service";
 import api from "../services/api";
 
 function ProductCard({
@@ -8,9 +10,14 @@ function ProductCard({
   onWishlistChange
 }) {
   const navigate = useNavigate();
-  
+  const { setCart } = useCart();
+
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [cartMessage, setCartMessage] = useState("");
+  const [cartError, setCartError] = useState("");
+    
   const [isSaving, setIsSaving] = useState(false);
-const [wishlistError, setWishlistError] = useState("");
+  const [wishlistError, setWishlistError] = useState("");
 
   const formatPrice = (price) => {
     return "₹" + price.toLocaleString("en-IN");
@@ -42,6 +49,40 @@ const handleToggleWishlist = async () => {
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (isAddingToCart || !isInStock) {
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      setCartMessage("");
+      setCartError("");
+
+      const data = await addToCart(product._id);
+
+      if (!data.success) {
+        throw new Error(data.message || "Could not add product to cart.");
+      }
+
+      if (data.cart) {
+        setCart(data.cart);
+      }
+
+      setCartMessage("Added to cart successfully.");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+
+      setCartError(
+        err.response?.data?.message ||
+          err.message ||
+          "Could not add product to cart."
+      );
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -105,7 +146,31 @@ const handleToggleWishlist = async () => {
           View Details
         </button>
 
-        
+        <button
+          className="add-to-cart-btn"
+          type="button"
+          onClick={handleAddToCart}
+          disabled={!isInStock || isAddingToCart}
+        >
+          {isAddingToCart
+            ? "Adding..."
+            : !isInStock
+              ? "Out of Stock"
+              : "Add to Cart"}
+        </button>
+
+        {cartMessage && (
+          <p className="cart-success" role="status">
+            {cartMessage}
+          </p>
+        )}
+
+        {cartError && (
+          <p className="cart-error" role="alert">
+            {cartError}
+          </p>
+        )}
+
         <button
           className="wishlist-btn"
           type="button"

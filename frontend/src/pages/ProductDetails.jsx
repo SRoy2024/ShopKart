@@ -8,11 +8,25 @@ import {
   useParams,
 } from "react-router-dom";
 
+import { useCart } from "../hooks/useCart";
+import { addToCart } from "../services/cart.service";
+
 import api from "../services/api";
 import Navbar from "../components/Navbar";
 
 function ProductDetails() {
   const { id } = useParams();
+
+  const { setCart } = useCart();
+
+  const [isAddingToCart, setIsAddingToCart] =
+    useState(false);
+
+  const [cartMessage, setCartMessage] =
+    useState("");
+
+  const [cartError, setCartError] =
+    useState("");
 
   const [product, setProduct] =
     useState(null);
@@ -67,6 +81,48 @@ function ProductDetails() {
     fetchProduct();
 
   }, [id]);
+
+  const handleAddToCart = async () => {
+    if (isAddingToCart || !isInStock) {
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
+      setCartMessage("");
+      setCartError("");
+
+      const data = await addToCart(product._id);
+
+      if (!data.success) {
+        throw new Error(
+          data.message || "Could not add product to cart."
+        );
+      }
+
+      if (data.cart) {
+        setCart(data.cart);
+      }
+
+      setCartMessage("Added to cart successfully.");
+
+    } catch (err) {
+      console.error(
+        "Add to cart error:",
+        err
+      );
+
+      setCartError(
+        err.response?.data?.message ||
+        err.message ||
+        "Could not add product to cart."
+      );
+
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
 
   const formatPrice = (price) => {
     return "₹" +
@@ -158,15 +214,36 @@ function ProductDetails() {
                     </strong>
                   </div>
 
-                  <button
-                    className="product-add-cart-btn"
-                    type="button"
-                    disabled={!isInStock}
-                  >
-                    {isInStock
+                <button
+                  className="product-add-cart-btn"
+                  type="button"
+                  onClick={handleAddToCart}
+                  disabled={!isInStock || isAddingToCart}
+                >
+                  {isAddingToCart
+                    ? "Adding..."
+                    : isInStock
                       ? "🛒 Add to Cart"
                       : "Out of Stock"}
-                  </button>
+                </button>
+
+                {cartMessage && (
+                  <p
+                    className="cart-success"
+                    role="status"
+                  >
+                    {cartMessage}
+                  </p>
+                )}
+
+                {cartError && (
+                  <p
+                    className="cart-error"
+                    role="alert"
+                  >
+                    {cartError}
+                  </p>
+                )}
                 </div>
               </section>
             )}
