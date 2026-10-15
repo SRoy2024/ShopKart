@@ -34,4 +34,5 @@ router.patch(
   authMiddleware,
   toggleWishlist
 );
+
 module.exports = router;

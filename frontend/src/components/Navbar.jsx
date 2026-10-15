@@ -83,6 +83,10 @@ function Navbar({ wishlistCount }) {
           Cart ({cartCount})
         </Link>
 
+        <Link className="navbar-link" to="/orders">
+          My Orders
+        </Link>
+
         <div className="navbar-badge" title="Fast delivery guarantee">
           <svg viewBox="0 0 12 12" fill="none">
             <path d="M6 1l1.5 3h3L8 6l1 3.5L6 8 3 9.5l1-3.5L1.5 4h3z" fill="currentColor"/>

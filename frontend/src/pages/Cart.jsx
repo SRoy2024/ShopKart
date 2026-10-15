@@ -113,6 +113,11 @@ function Cart() {
     return total + price * item.quantity;
   }, 0);
 
+  const itemCount = cart.reduce(
+  (total, item) => total + item.quantity,
+  0
+);
+
   if (loading) {
     return (
       <>
@@ -158,6 +163,8 @@ function Cart() {
   }
 
   return (
+    <>
+    <Navbar />
     <main className="cart-page">
       <h1>Your Shopping Cart</h1>
 
@@ -280,9 +287,18 @@ function Cart() {
             <h2>Order Summary</h2>
 
             <p>
-              Subtotal:{" "}
-              <strong>₹{subtotal.toFixed(2)}</strong>
+              Items: <strong>{itemCount}</strong>
             </p>
+
+            <p>
+              Subtotal: <strong>₹{subtotal.toFixed(2)}</strong>
+            </p>
+
+            <p>Shipping: Calculated at checkout</p>
+
+            <Link to="/checkout" className="checkout-button">
+              Proceed to Checkout
+            </Link>
 
             <Link to="/products">
               Continue shopping
@@ -301,6 +317,7 @@ function Cart() {
         </>
       )}
     </main>
+    </>
   );
 }
 
