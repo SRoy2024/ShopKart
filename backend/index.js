@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const customerRoutes = require("./routes/customer.routes");
 const productRoutes = require("./routes/product.routes");
@@ -9,7 +10,12 @@ const cartRoutes = require("./routes/cart.routes");
 const orderRoutes = require("./routes/order.routes");
 
 const app = express();
-
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
