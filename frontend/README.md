@@ -1,16 +1,111 @@
-# React + Vite
+# ShopKart
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ShopKart is a full-stack e-commerce web application built using the **MERN stack**.
 
-Currently, two official plugins are available:
+It includes user authentication, product browsing, wishlist management, cart functionality, checkout flow, order handling, and payment integration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Live Demo
 
-## React Compiler
+[ShopKart Live Website](https://shop-kart-lovat-theta.vercel.app/)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+### Frontend
+- React
+- Vite
+- React Router
+- Axios
+- CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT Authentication
+- Cookie-based authentication
+
+### Deployment
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+
+### Payments
+- Razorpay
+
+---
+
+## Features
+
+### Authentication
+- User registration
+- User login
+- User logout
+- JWT-based authentication
+- HttpOnly cookie authentication
+- Protected routes
+- Persistent login across page refreshes
+
+### Products
+- Browse available products
+- Fetch products from MongoDB
+- Product details and pricing
+- Product stock information
+
+### Wishlist
+- Add products to wishlist
+- Prevent duplicate wishlist entries
+- Fetch user-specific wishlist
+- Remove products from wishlist
+- Wishlist data stored in MongoDB
+- Wishlist persists across refreshes and login sessions
+
+### Cart
+- Add products to cart
+- View cart items
+- Update cart quantities
+- Remove items from cart
+- Persistent user-specific cart
+
+### Checkout
+- Checkout page
+- Order summary
+- Order placement
+- Razorpay payment integration
+
+### Orders
+- Create orders
+- Store order details in MongoDB
+- Associate orders with authenticated users
+
+### Responsive UI
+- Responsive frontend
+- Works across desktop and mobile devices
+- SPA routing support on Vercel
+
+---
+
+## Project Architecture
+
+```text
+ShopKart/
+│
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middlewares/
+│   ├── scripts/
+│   ├── index.js
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── ...
+│   ├── public/
+│   ├── vercel.json
+│   └── package.json
+│
+└── README.md
